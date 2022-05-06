@@ -20,7 +20,7 @@ const createIntern = async (req, res) => {
         }
 
         // Extract params
-        const { name, email, mobile, collegeId } = requestBody //Object destructuring
+        const { name, email, mobile, collegeName } = requestBody //Object destructuring
 
         // Validation starts
         if (!isValid(name)) {
@@ -48,16 +48,18 @@ const createIntern = async (req, res) => {
             return
         }
 
-        if (!isValid(collegeId)) {
-            res.status(400).send({ status: false, message: 'College id is required' })
+        if(!isValid(collegeName)){
+            res.status(400).send({status: false, message: 'College name is required'})
+        }
+
+        let college = await collegeModel.findOne({name: collegeName})
+
+        if(!isValid(college)){
+            res.status(400).send({status: false, message: `${collegeName} not exists in collection`})
             return
         }
 
-        let college = await collegeModel.findById(collegeId)
-        if(!college){
-            res.status(400).send({status: false, message: `${collegeId} is not a valid college id`})
-            return
-        }
+        const collegeId = college._id
 
         const isEmailAlreadyUsed = await internModel.findOne({ email });  //{email : email} object shorthand property
 
